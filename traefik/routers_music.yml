@@ -1,0 +1,46 @@
+http:
+  routers:
+    navidrome-api:
+      rule: Host(`music.{{ env "DOMAIN" }}`) && PathPrefix(`/rest`)
+      entryPoints: "websecure"
+      priority: 200
+      middlewares: chain-api@file
+      service: navidrome-svc@file
+
+    navidrome-share:
+      rule: Host(`music.{{ env "DOMAIN" }}`) && PathPrefix(`/share`)
+      entryPoints: "websecure"
+      priority: 190
+      middlewares: chain-no-auth@file
+      service: navidrome-svc@file
+
+    navidrome-metrics:
+      rule: Host(`music.{{ env "DOMAIN" }}`) && PathPrefix(`/metrics`)
+      priority: 180
+      middlewares: chain-monitoring@file
+      service: navidrome-svc@file
+
+    navidrome-web:
+      rule: Host(`music.{{ env "DOMAIN" }}`)
+      entryPoints: "websecure"
+      priority: 100
+      middlewares: chain-authentik-no-crowdsec@file
+      service: navidrome-svc@file
+
+    picard:
+      rule: Host(`picard.{{ env "DOMAIN" }}`)
+      entryPoints: "websecure"
+      middlewares: sablier-picard@file,chain-picard@file
+      service: picard-svc@file
+
+  middlewares:
+    sablier-picard:
+      plugin:
+        sablier:
+          sablierUrl: http://sablier:10000
+          group: picard
+          sessionDuration: 15m
+          dynamic:
+            displayName: MusicBrainz Picard
+            theme: hacker-terminal
+            refreshFrequency: 5s

@@ -1,0 +1,17 @@
+http:
+  services:
+    navidrome-svc:
+      loadBalancer:
+        servers:
+          - url: http://navidrome:4533
+
+    picard-svc:
+      loadBalancer:
+        servers:
+          - url: http://picard:5800
+        responseForwarding:
+          flushInterval: 100ms
+        healthCheck:
+          path: /
+          interval: 30s
+          timeout: 5s

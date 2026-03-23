@@ -1,0 +1,58 @@
+module:
+  name: music
+  version: 1.0.0
+  description: "Music streaming and library management"
+  author: "Matt Barham"
+  license: MIT
+
+requires:
+  networks:
+    - name: troxy
+      required: true
+  hub_services:
+    - traefik
+
+env:
+  hub:
+    - TZ
+    - DOMAIN
+    - SPOKE_DIR
+    - SECRETS_DIR
+    - APPDATA_DIR
+    - PUID
+    - DGID
+    - SSL_CERT_FILE
+    - REQUESTS_CA_BUNDLE
+    - CURL_CA_BUNDLE
+    - CA_CERT
+    - LOCALTIME
+    - CDN_IPS
+    - LOCAL_IPS
+  module:
+    - NAVIDROME_IMAGE
+    - PICARD_IMAGE
+    - NAVIDROME_IP
+    - NAVIDROME_PORT
+    - PICARD_IP
+    - PICARD_PORT
+    - PICARD_VNC_PORT
+    - PICARD_BROWSER_PORT
+    - MUSIC_DIR
+    - SPOTIFY_ID
+    - SPOTIFY_SECRET
+    - LASTFM_APIKEY
+    - LASTFM_SECRET
+
+secrets:
+  - name: last_fm_api_key
+    required: false
+  - name: last_fm_shared_secret
+    required: false
+
+health:
+  - service: navidrome
+    path: /rest/ping
+    port: 4533
+  - service: picard
+    path: /
+    port: 5800

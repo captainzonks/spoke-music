@@ -1,0 +1,184 @@
+# ==============================================================================
+# SPOKE-MUSIC - DOCKER COMPOSE
+# ==============================================================================
+# Description: Music streaming and library management
+# Version: 1.0.0
+# Created: 2026-02-13
+# Modified: 2026-02-13
+# ==============================================================================
+# Module: music
+# Config Sources: .env (hub vars injected by Spoke + module defaults)
+# Security: non-root where possible, secrets via /run/secrets/
+# ==============================================================================
+# Container Images:
+#   NAVIDROME_IMAGE (deluan/navidrome:0.59.0)
+#   PICARD_IMAGE (mikenye/picard:2.13.3)
+# Networks:
+#   - troxy (192.168.35.0/24) - main application network
+# ==============================================================================
+
+name: spoke-music
+
+############################ EXTENSIONS
+
+x-ssl: &ssl
+  environment:
+    - SSL_CERT_FILE=${SSL_CERT_FILE}
+    - REQUESTS_CA_BUNDLE=${REQUESTS_CA_BUNDLE}
+    - CURL_CA_BUNDLE=${CURL_CA_BUNDLE}
+
+  volumes:
+    - ${CA_CERT}:/etc/ssl/certs/ca-certificates.crt:ro
+
+x-logging-small: &log_small
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "2"
+
+############################ NETWORKS
+
+networks:
+  troxy:
+    external: true
+
+############################# SECRETS
+
+secrets:
+  last_fm_api_key:
+    file: ${SECRETS_DIR}/media/last_fm_api_key
+  last_fm_shared_secret:
+    file: ${SECRETS_DIR}/media/last_fm_shared_secret
+
+############################# SERVICES
+
+services:
+  #======================================
+  # NAVIDROME - Music Streaming Server
+  #======================================
+  navidrome:
+    <<: [*ssl, *log_small]
+    image: ${NAVIDROME_IMAGE}
+    hostname: navidrome
+    container_name: navidrome
+    restart: on-failure
+    init: true
+
+    security_opt:
+      - no-new-privileges=true
+    read_only: true
+    mem_limit: 1G
+    cpus: 2.0
+    cap_drop:
+      - ALL
+    user: ${PUID}:${DGID}
+
+    networks:
+      troxy:
+        ipv4_address: ${NAVIDROME_IP}
+
+    ports:
+      - ${NAVIDROME_PORT}:4533
+
+    command: --configfile "/config/navidrome.yml"
+
+    environment:
+      - TZ=${TZ}
+      - DOMAIN=${DOMAIN}
+      - CDN_IPS=${CDN_IPS}
+      - LOCAL_IPS=${LOCAL_IPS}
+      - ND_BASE_URL=${NAVIDROME_BASE_URL}
+      - ND_ADDRESS=${NAVIDROME_IP}
+      - ND_PORT=${NAVIDROME_PORT}
+      - ND_SPOTIFY_ID=${SPOTIFY_ID}
+      - ND_SPOTIFY_SECRET=${SPOTIFY_SECRET}
+      - ND_LASTFM_APIKEY=${LASTFM_APIKEY}
+      - ND_LASTFM_SECRET=${LASTFM_SECRET}
+
+    volumes:
+      - ${APPDATA_DIR}/navidrome/data/:/data/:rw
+      - ${APPDATA_DIR}/navidrome/config/:/config/:ro
+      - ${MUSIC_DIR}/:/music/:ro
+      - ${LOCALTIME}:/etc/localtime:ro
+
+    tmpfs:
+      - /tmp/:rw,size=200m
+      - /run/:rw,size=50m
+      - /dev/shm/:rw,size=256m
+
+  #======================================
+  # PICARD - Music Library Tagging
+  #======================================
+  picard:
+    <<: [*ssl, *log_small]
+    image: ${PICARD_IMAGE}
+    hostname: picard
+    container_name: picard
+    restart: on-failure
+    init: true
+
+    security_opt:
+      - no-new-privileges=true
+    mem_limit: 1G
+    cpus: 2.0
+
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1
+      - net.ipv6.conf.default.disable_ipv6=1
+
+    dns_opt:
+      - single-request-reopen
+      - timeout:2
+      - attempts:3
+
+    networks:
+      troxy:
+        ipv4_address: ${PICARD_IP}
+
+    ports:
+      - ${PICARD_PORT}:5800
+      - ${PICARD_VNC_PORT}:5900
+      - ${PICARD_BROWSER_PORT}:8000
+
+    environment:
+      - TZ=${TZ}
+      - USER_ID=${PUID}
+      - GROUP_ID=${DGID}
+      - DOMAIN=${DOMAIN}
+      - PICARD_IP=${PICARD_IP}
+      - PICARD_PORT=${PICARD_PORT}
+      - UMASK=002
+      - DISPLAY_WIDTH=1920
+      - DISPLAY_HEIGHT=1080
+      - DARK_MODE=1
+      - SECURE_CONNECTION=0
+      - KEEP_APP_RUNNING=1
+      - WEB_AUDIO=0
+      - ENABLE_CJK_FONT=0
+      - CONTAINER_DEBUG=0
+      - QT_BEARER_POLL_TIMEOUT=-1
+      - QT_NETWORK_DISABLE_CACHE=0
+      - QT_DISABLE_HTTP2=1
+      - QT_SSL_USE_TEMPORARY_KEYCHAIN=1
+      - QT_LOGGING_RULES=qt.network.ssl=false
+      - QTWEBENGINE_CHROMIUM_FLAGS=--disable-http2
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5800"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+    labels:
+      - sablier.enable=true
+      - sablier.group=picard
+
+    volumes:
+      - ${APPDATA_DIR}/picard/:/config/:rw
+      - ${MUSIC_DIR}/:/storage/:rw
+      - ${LOCALTIME}:/etc/localtime:ro
+
+    tmpfs:
+      - /dev/shm/:rw,size=1g
