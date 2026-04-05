@@ -4,14 +4,14 @@
 # Description: Music streaming and library management
 # Version: 1.0.0
 # Created: 2026-02-13
-# Modified: 2026-02-13
+# Modified: 2026-04-05
 # ==============================================================================
 # Module: music
 # Config Sources: .env (hub vars injected by Spoke + module defaults)
 # Security: non-root where possible, secrets via /run/secrets/
 # ==============================================================================
 # Container Images:
-#   NAVIDROME_IMAGE (deluan/navidrome:0.59.0)
+#   NAVIDROME_IMAGE (deluan/navidrome:0.61.1)
 #   PICARD_IMAGE (mikenye/picard:2.13.3)
 # Networks:
 #   - troxy (192.168.35.0/24) - main application network
@@ -91,8 +91,6 @@ services:
       - ND_BASE_URL=${NAVIDROME_BASE_URL}
       - ND_ADDRESS=${NAVIDROME_IP}
       - ND_PORT=${NAVIDROME_PORT}
-      - ND_SPOTIFY_ID=${SPOTIFY_ID}
-      - ND_SPOTIFY_SECRET=${SPOTIFY_SECRET}
       - ND_LASTFM_APIKEY=${LASTFM_APIKEY}
       - ND_LASTFM_SECRET=${LASTFM_SECRET}
 
