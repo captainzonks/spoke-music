@@ -1,5 +1,21 @@
 # spoke-music
 
+<!--
+==============================================================================
+README.md - spoke-music module documentation
+==============================================================================
+Description: Music streaming and library management Spoke module
+Author: Matt Barham
+Created: 2026-02-13
+Modified: 2026-04-21
+Version: 1.0.1
+==============================================================================
+Document Type: Reference
+Audience: Developer
+Status: Final
+==============================================================================
+-->
+
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/E1E21U3S1R)
 
 Spoke module for music streaming and library management.
