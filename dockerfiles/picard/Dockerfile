@@ -19,9 +19,12 @@ ARG PICARD_REF=release-3.0.2
 # Install Picard 3.x runtime and build dependencies
 # -----------------------------------------------------------------------------
 # Notes:
-#   - PyQt6 is provided by the system (python3-pyqt6 package).
-#   - --system-site-packages venv lets Picard import system PyQt6 without
-#     forcing a 200MB pip wheel install.
+#   - Picard 3.0.2 needs Qt >= 6.5 (Qt.ColorScheme), but Ubuntu 24.04 ships
+#     Qt 6.4. PyQt6 therefore comes from PyPI wheels (bundled Qt), pinned
+#     below. python3-pyqt6 stays installed only to pull in the Qt runtime
+#     library dependencies; the venv copy shadows it.
+#   - --system-site-packages venv still lets Picard use the system mutagen,
+#     dateutil, yaml, libdiscid and tomlkit packages.
 #   - libdiscid + chromaprint give Picard CD/AcoustID lookup support.
 #   - python3-tomlkit satisfies the tomlkit>=0.12.4 requirement added after
 #     3.0.0b4. Other pure-Python requirements (Markdown, PyJWT, pygit2,
@@ -37,7 +40,12 @@ RUN add-pkg --virtual build-deps \
         python3-libdiscid python3-yaml \
         libdiscid0 libchromaprint-tools \
         fonts-dejavu \
+        libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 \
+        libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 \
+        libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 \
     && python3 -m venv --system-site-packages /opt/picard \
+    && /opt/picard/bin/pip install --no-cache-dir --ignore-installed \
+        PyQt6==6.11.0 PyQt6-Qt6==6.11.2 PyQt6-sip==13.13.0 \
     && cd /tmp \
     && git clone --depth 1 --branch "${PICARD_REF}" \
         https://github.com/metabrainz/picard.git picard-src \
