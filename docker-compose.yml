@@ -14,7 +14,8 @@
 # ==============================================================================
 # Container Images:
 #   See modules/music/.env.example for complete image paths and versions
-#   (NAVIDROME_IMAGE, PICARD_IMAGE)
+#   (NAVIDROME_IMAGE, PICARD_IMAGE). PICARD_IMAGE is built locally from
+#   dockerfiles/picard/ (Picard 3, PICARD_VERSION).
 # Documentation:
 #   - Navidrome: https://www.navidrome.org/docs/
 #   - Picard: https://picard.musicbrainz.org/docs/
@@ -116,11 +117,16 @@ services:
       - /dev/shm/:rw,size=256m
 
   #======================================
-  # PICARD - Music Library Tagging
+  # PICARD - Music Library Tagging (MusicBrainz Picard 3)
   #======================================
   picard:
     <<: [*ssl, *log_small]
     image: ${PICARD_IMAGE}
+    build:
+      context: ./dockerfiles/picard/
+      dockerfile: Dockerfile
+      args:
+        PICARD_REF: release-${PICARD_VERSION}
     hostname: picard
     container_name: picard
     restart: on-failure
@@ -170,14 +176,13 @@ services:
       - QT_DISABLE_HTTP2=1
       - QT_SSL_USE_TEMPORARY_KEYCHAIN=1
       - QT_LOGGING_RULES=qt.network.ssl=false
-      - QTWEBENGINE_CHROMIUM_FLAGS=--disable-http2
 
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:5800"]
+      test: ["CMD", "python3", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:5800', timeout=3).status==200 else 1)"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 30s
+      start_period: 60s
 
     labels:
       - sablier.enable=true

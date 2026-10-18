@@ -25,7 +25,7 @@ Spoke module for music streaming and library management.
 | Service   | Description              | Port | Network |
 |-----------|--------------------------|------|---------|
 | navidrome | Music streaming server   | 4533 | troxy   |
-| picard    | MusicBrainz Picard tagger| 5800 | troxy   |
+| picard    | MusicBrainz Picard 3 tagger| 5800 | troxy   |
 
 ## Prerequisites
 
@@ -46,7 +46,8 @@ docker compose up -d
 | Variable          | Default                          | Description              |
 |-------------------|----------------------------------|--------------------------|
 | `NAVIDROME_IMAGE` | `deluan/navidrome:0.62.0`        | Navidrome container image|
-| `PICARD_IMAGE`    | `mikenye/picard:2.13.3`          | Picard container image   |
+| `PICARD_VERSION`  | `3.0.2`                          | Picard release built from source |
+| `PICARD_IMAGE`    | `spoke/picard:${PICARD_VERSION}` | Locally built Picard image |
 | `NAVIDROME_IP`    | `192.168.35.85`                  | Navidrome static IP      |
 | `NAVIDROME_PORT`  | `4533`                           | Navidrome web port       |
 | `PICARD_IP`       | `192.168.35.86`                  | Picard static IP         |
