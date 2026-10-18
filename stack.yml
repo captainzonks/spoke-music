@@ -44,6 +44,7 @@ env:
     - LOCAL_IPS
   module:
     - NAVIDROME_IMAGE
+    - PICARD_VERSION
     - PICARD_IMAGE
     - NAVIDROME_IP
     - NAVIDROME_PORT
