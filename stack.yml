@@ -53,16 +53,12 @@ env:
     - PICARD_VNC_PORT
     - PICARD_BROWSER_PORT
     - MUSIC_DIR
-    - SPOTIFY_ID
-    - SPOTIFY_SECRET
-    - LASTFM_APIKEY
-    - LASTFM_SECRET
 
 secrets:
   - name: last_fm_api_key
-    required: false
+    required: true
   - name: last_fm_shared_secret
-    required: false
+    required: true
 
 health:
   - service: navidrome

@@ -53,10 +53,6 @@ docker compose up -d
 | `PICARD_IP`       | `192.168.35.86`                  | Picard static IP         |
 | `PICARD_PORT`     | `5300`                           | Picard web port          |
 | `MUSIC_DIR`       | `/mnt/storage/media/Music`       | Music library path       |
-| `SPOTIFY_ID`      | (empty)                          | Spotify API client ID    |
-| `SPOTIFY_SECRET`  | (empty)                          | Spotify API secret       |
-| `LASTFM_APIKEY`   | (empty)                          | Last.fm API key          |
-| `LASTFM_SECRET`   | (empty)                          | Last.fm shared secret    |
 
 ## References
 

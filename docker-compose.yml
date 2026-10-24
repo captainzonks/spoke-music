@@ -92,7 +92,21 @@ services:
     ports:
       - ${NAVIDROME_PORT}:4533
 
-    command: --configfile "/config/navidrome.yml"
+    # Navidrome has no *_FILE support: the Last.fm credentials are read from the
+    # mounted secrets at start-up and exported only for the navidrome process.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - >-
+        export ND_LASTFM_APIKEY="$$(cat /run/secrets/last_fm_api_key)"
+        ND_LASTFM_SECRET="$$(cat /run/secrets/last_fm_shared_secret)";
+        exec /app/navidrome "$$@"
+      - navidrome
+    command: ["--configfile", "/config/navidrome.yml"]
+
+    secrets:
+      - last_fm_api_key
+      - last_fm_shared_secret
 
     environment:
       - TZ=${TZ}
@@ -102,8 +116,6 @@ services:
       - ND_BASE_URL=${NAVIDROME_BASE_URL}
       - ND_ADDRESS=${NAVIDROME_IP}
       - ND_PORT=${NAVIDROME_PORT}
-      - ND_LASTFM_APIKEY=${LASTFM_APIKEY}
-      - ND_LASTFM_SECRET=${LASTFM_SECRET}
 
     volumes:
       - ${APPDATA_DIR}/navidrome/data/:/data/:rw
