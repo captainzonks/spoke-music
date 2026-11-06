@@ -1,25 +1,25 @@
 # =============================================================================
-# Picard 3.0.2 - locally-built image
+# Picard 3.0.4 - locally-built image
 # =============================================================================
 # Base: jlesage/baseimage-gui (Ubuntu 24.04, noVNC + Xvnc + s6 service manager)
 # Source: https://github.com/metabrainz/picard
 # =============================================================================
 # Build (normally done by `make rebuild MODULE=music SERVICE=picard`):
-#   docker build -t spoke/picard:3.0.2 \
-#       --build-arg PICARD_REF=release-3.0.2 \
+#   docker build -t spoke/picard:3.0.4 \
+#       --build-arg PICARD_REF=release-3.0.4 \
 #       dockerfiles/picard/
 # =============================================================================
 
 ARG BASE_IMAGE=jlesage/baseimage-gui:ubuntu-24.04-v4
 FROM ${BASE_IMAGE}
 
-ARG PICARD_REF=release-3.0.2
+ARG PICARD_REF=release-3.0.4
 
 # -----------------------------------------------------------------------------
 # Install Picard 3.x runtime and build dependencies
 # -----------------------------------------------------------------------------
 # Notes:
-#   - Picard 3.0.2 needs Qt >= 6.5 (Qt.ColorScheme), but Ubuntu 24.04 ships
+#   - Picard 3.0.4 needs Qt >= 6.5 (Qt.ColorScheme), but Ubuntu 24.04 ships
 #     Qt 6.4. PyQt6 therefore comes from PyPI wheels (bundled Qt), pinned
 #     below. python3-pyqt6 stays installed only to pull in the Qt runtime
 #     library dependencies; the venv copy shadows it.

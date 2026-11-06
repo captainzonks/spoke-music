@@ -46,7 +46,7 @@ docker compose up -d
 | Variable          | Default                          | Description              |
 |-------------------|----------------------------------|--------------------------|
 | `NAVIDROME_IMAGE` | `deluan/navidrome:0.62.0`        | Navidrome container image|
-| `PICARD_VERSION`  | `3.0.2`                          | Picard release built from source |
+| `PICARD_VERSION`  | `3.0.4`                          | Picard release built from source |
 | `PICARD_IMAGE`    | `spoke/picard:${PICARD_VERSION}` | Locally built Picard image |
 | `NAVIDROME_IP`    | `192.168.35.85`                  | Navidrome static IP      |
 | `NAVIDROME_PORT`  | `4533`                           | Navidrome web port       |
