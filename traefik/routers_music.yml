@@ -18,7 +18,7 @@ http:
       rule: Host(`music.{{ env "DOMAIN" }}`) && PathPrefix(`/rest`)
       entryPoints: "websecure"
       priority: 200
-      middlewares: chain-api@file
+      middlewares: chain-navidrome-api@file
       service: navidrome-svc@file
 
     navidrome-share:
@@ -48,6 +48,26 @@ http:
       service: picard-svc@file
 
   middlewares:
+    # Subsonic clients (ratune, Symfonium, DSub, ...) index a library with
+    # hundreds of parallel getArtist/getAlbum calls. The hub's generic
+    # rate-limit-api (1000/min, burst 300) rejects most of that burst with
+    # HTTP 429, leaving the client's index incomplete. This limit is per source
+    # IP and Subsonic requests are authenticated by Navidrome.
+    rate-limit-navidrome-api:
+      rateLimit:
+        average: 6000
+        burst: 2000
+        period: 1m
+
+    # Same chain as the hub's chain-api, with the Navidrome-specific limit.
+    chain-navidrome-api:
+      chain:
+        middlewares:
+          - rate-limit-navidrome-api
+          - secure-headers
+          - real-ip
+          - crowdsec
+
     sablier-picard:
       plugin:
         sablier:
